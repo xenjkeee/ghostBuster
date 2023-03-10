@@ -8,7 +8,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.impulsetesttask.R
 import kotlinx.coroutines.delay
 
@@ -30,7 +29,3 @@ fun SplashScreen(
         )
     }
 }
-
-@Preview
-@Composable
-private fun PreviewSplashScreen() = SplashScreen()

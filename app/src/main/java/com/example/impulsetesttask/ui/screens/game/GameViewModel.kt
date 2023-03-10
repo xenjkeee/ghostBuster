@@ -14,21 +14,37 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class GameViewModel @Inject constructor(
-    stateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val params = Json.decodeFromString<Destination.Game.Params>(
-        checkNotNull(stateHandle.get<String>(paramsKey))
+        checkNotNull(savedStateHandle.get<String>(paramsKey))
     )
     private val dimension = GameSettings.dimension(params.level)
     private val ghosts = GameSettings.ghosts(params.level)
-    private val state = MutableStateFlow<State>(State.Initial)
-    private val score = MutableStateFlow(params.score)
-    private val map = MutableStateFlow<List<CellType>>(emptyList())
-    private val revealedCells = MutableStateFlow(listOf<Int>())
+    private val state = savedStateHandle.getStateFlow<State>("state", State.Initial)
+    private val score = savedStateHandle.getStateFlow("score", params.score)
+    private val map = savedStateHandle.getStateFlow("map", emptyList<CellType>())
+    private val revealedCells = savedStateHandle.getStateFlow("revealed", listOf<Int>())
+
+    private fun setState(state: State) {
+        savedStateHandle["state"] = state
+    }
+
+    private fun setScore(score: Int) {
+        savedStateHandle["score"] = score
+    }
+
+    private fun setMap(map: List<CellType>) {
+        savedStateHandle["map"] = map
+    }
+
+    private fun setRevealedCells(cells: List<Int>) {
+        savedStateHandle["revealed"] = cells
+    }
 
     private fun revealCell(index: Int) {
-        revealedCells.value += index
-        if (map.value[index] is CellType.Ghost) score.value += 5
+        setRevealedCells(revealedCells.value + index)
+        if (map.value[index] is CellType.Ghost) setScore(score.value + 5)
     }
 
     val gameState = combine(
@@ -60,7 +76,7 @@ internal class GameViewModel @Inject constructor(
         initialValue = GameState(
             state = State.Initial,
             score = params.score,
-            gridState = GridState(emptyList(), 0)
+            gridState = GridState(emptyList(), dimension.first)
         )
     )
 
@@ -80,41 +96,41 @@ internal class GameViewModel @Inject constructor(
                     .size == ghosts
             )
         }
-    }.filterNotNull().onEach { state.value = it }.launchIn(viewModelScope)
+    }.filterNotNull().onEach { setState(it) }.launchIn(viewModelScope)
 
     private fun runStateMachine() = state.onEach {
         when (it) {
             State.Initial -> {
-                map.value = MapGenerator.createMap(dimension, ghosts)
-                revealedCells.value = emptyList()
-                score.value = params.score
+                setMap(MapGenerator.createMap(dimension, ghosts))
+                setRevealedCells(emptyList())
+                setScore(params.score)
                 delay(100)
-                state.value = State.Appear
+                setState(State.Appear)
             }
             State.Appear -> {
                 delay(2_000)
-                state.value = State.Preview
+                setState(State.Preview)
             }
             State.Preview -> {
                 delay(3_000)
-                state.value = State.InProgress
+                setState(State.InProgress)
             }
             is State.Finished -> {
                 delay(2_000)
-                state.value = State.Clear(isFinished = true)
+                setState(State.Clear(isFinished = true))
             }
             is State.Clear -> when (it.isFinished) {
                 true -> {
                     delay(2_000)
-                    state.value = State.Idle(
+                    State.Idle(
                         revealedCells.value.map { i -> map.value[i] }
                             .filterIsInstance<CellType.Ghost>()
                             .size == ghosts
-                    )
+                    ).also { state -> setState(state) }
                 }
                 false -> {
                     delay(2_000)
-                    state.value = State.Initial
+                    setState(State.Initial)
                 }
             }
             else -> Unit
@@ -122,7 +138,7 @@ internal class GameViewModel @Inject constructor(
     }.launchIn(viewModelScope)
 
     fun handleEvent(event: GameEvent) = when (event) {
-        GameEvent.Restart -> state.value = State.Clear(isFinished = false)
+        GameEvent.Restart -> setState(State.Clear(isFinished = false))
         is GameEvent.RevealCell -> revealCell(event.index)
     }
 }

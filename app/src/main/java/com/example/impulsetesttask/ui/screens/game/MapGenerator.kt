@@ -10,7 +10,6 @@ internal object MapGenerator {
         repeat(size - ghostCount) { add(CellType.Empty) }
     }.shuffled()
 
-
     private val ghostImageResources = listOf(
         R.drawable.ghost_1, R.drawable.ghost_2, R.drawable.ghost_3,
         R.drawable.ghost_4, R.drawable.ghost_5,
