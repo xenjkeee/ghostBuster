@@ -26,7 +26,7 @@ fun NavigationHost(navController: NavHostController = rememberNavController()) {
         composable(Destination.Splash.route) {
             SplashScreen {
                 navController.navigate(Destination.Home.route) {
-                    popUpTo(Destination.Home.route) { inclusive = true }
+                    popUpTo(Destination.Splash.route) { inclusive = true }
                 }
             }
         }
