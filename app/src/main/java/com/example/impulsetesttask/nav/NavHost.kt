@@ -11,7 +11,6 @@ import com.example.impulsetesttask.ui.screens.game.GameScreen
 import com.example.impulsetesttask.ui.screens.game.GameViewModel
 import com.example.impulsetesttask.ui.screens.home.HomeScreen
 import com.example.impulsetesttask.ui.screens.results.ResultsScreen
-import com.example.impulsetesttask.ui.screens.splash.SplashScreen
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
@@ -21,15 +20,8 @@ fun NavigationHost(navController: NavHostController = rememberNavController()) {
 
     NavHost(
         navController = navController,
-        startDestination = Destination.Splash.route
+        startDestination = Destination.Home.route
     ) {
-        composable(Destination.Splash.route) {
-            SplashScreen {
-                navController.navigate(Destination.Home.route) {
-                    popUpTo(Destination.Splash.route) { inclusive = true }
-                }
-            }
-        }
 
         composable(Destination.Home.route) {
             HomeScreen {

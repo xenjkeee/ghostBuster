@@ -5,4 +5,12 @@
         <item name="android:statusBarColor">@color/primary</item>
         <item name="android:windowBackground">@drawable/img_background</item>
     </style>
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- splash screen api doesn't support drawables yet-->
+        <item name="windowSplashScreenBackground">@color/primary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+
+        <item name="postSplashScreenTheme">@style/Theme.ImpulseTestTask</item>
+    </style>
 </resources>

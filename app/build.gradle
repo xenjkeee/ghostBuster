@@ -68,6 +68,8 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
     kapt "com.google.dagger:hilt-compiler:2.44"
 
+    implementation "androidx.core:core-splashscreen:$splah_screen_version"
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'

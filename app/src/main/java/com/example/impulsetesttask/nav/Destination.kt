@@ -7,11 +7,6 @@ import kotlinx.serialization.json.Json
 
 sealed class Destination : NavDestination {
 
-    object Splash : Destination() {
-        override val name: String = "splash"
-        override val hasArguments: Boolean = false
-    }
-
     object Home : Destination() {
         override val name: String = "home"
         override val hasArguments: Boolean = false
