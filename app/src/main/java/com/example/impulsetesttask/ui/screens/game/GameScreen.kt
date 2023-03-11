@@ -14,9 +14,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.impulsetesttask.R
+import com.example.impulsetesttask.ui.theme.ImpulseTestTaskTheme
 
 @Composable
 fun GameScreen(
@@ -80,12 +84,23 @@ fun GameScreen(
             }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
-            Grid(
-                modifier = Modifier.padding(30.dp),
-                state = state,
-                onItemCLick = { handleEvent(GameEvent.RevealCell(it)) }
-            )
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(30.dp)
+                .fillMaxSize()
+        ) {
+            ResizeableLayout(
+                modifier = Modifier
+                    .align(Alignment.Center),
+                ratio = state.gridState.dimension.first.toFloat() / state.gridState.dimension.second
+            ) {
+                Grid(
+                    modifier = Modifier.padding(horizontal = 1.dp),
+                    state = state,
+                    onItemCLick = { handleEvent(GameEvent.RevealCell(it)) }
+                )
+            }
             Box(modifier = Modifier.align(Alignment.Center)) {
                 AnimatedVisibility(
                     visible = when (state.state) {
@@ -111,4 +126,39 @@ fun GameScreen(
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun PreviewGameScreen(
+    @PreviewParameter(SampleGridStateProvider::class) gridState: GridState
+) = ImpulseTestTaskTheme {
+    GameScreen(
+        state = GameState(
+            state = State.InProgress,
+            score = 404,
+            gridState = gridState
+        ),
+        handleEvent = {},
+        onNext = { _, _ -> }
+    )
+}
+
+private class SampleGridStateProvider : PreviewParameterProvider<GridState> {
+    override val values: Sequence<GridState>
+        get() = generateSequence(0) { it + 1 }
+            .take(5)
+            .map { GameSettings.dimension(it) }
+            .map { dimension ->
+                GridState(
+                    items = List(dimension.first * dimension.second) {
+                        CellState(
+                            isReveled = false,
+                            cellType = CellType.Empty,
+                            cellStatus = CellStatus.Default
+                        )
+                    },
+                    dimension = dimension
+                )
+            }
 }

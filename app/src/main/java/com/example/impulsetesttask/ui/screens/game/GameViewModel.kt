@@ -54,7 +54,7 @@ internal class GameViewModel @Inject constructor(
             state = state,
             score = score,
             gridState = GridState(
-                columnCount = dimension.first,
+                dimension = dimension,
                 items = map.mapIndexed { index, cell ->
                     CellState(
                         isReveled = revealedCells.contains(index) ||
@@ -76,7 +76,7 @@ internal class GameViewModel @Inject constructor(
         initialValue = GameState(
             state = State.Initial,
             score = params.score,
-            gridState = GridState(emptyList(), dimension.first)
+            gridState = GridState(emptyList(), dimension)
         )
     )
 
